@@ -1,34 +1,28 @@
 package com.kmeans.kmeans;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class ThreadDistanceCentroid extends Thread
 {
-    public static Map<Centroid, Double> distCentroid;
-    public static Record record;
-    public static List<Centroid> centroids;
+    public Record record;
+    public Centroid centroid;
     public static Distance distance;
+    private double distValue;
 
-    public ThreadDistanceCentroid(Record record, List<Centroid> centroids, Distance distance)
+    public ThreadDistanceCentroid(Record record, Centroid centroid, Distance distance)
     {
-        ThreadDistanceCentroid.record = record;
-        ThreadDistanceCentroid.centroids = centroids;
-        ThreadDistanceCentroid.distCentroid = new HashMap<Centroid, Double>(centroids.size());
+        this.record = record;
+        this.centroid = centroid;
         ThreadDistanceCentroid.distance = distance;
+    }
+
+    public double getDistValue() {
+        return distValue;
     }
 
     @Override
     public void run()
     {
-        centroids
-                .parallelStream()
-                .forEach(centroid -> {
-                    ThreadDistanceCentroid.distCentroid
-                            .put(centroid, distance.calculate(record.getCoordinates(), centroid.coordinates()));
-                    System.out.println(this + " is runing");
-                });
+        distValue = distance.calculate(record.getCoordinates(), centroid.coordinates());
+        System.out.println(this + " " + (isAlive()?" is running at " : " stopped at ")+System.currentTimeMillis());
     }
 
 }

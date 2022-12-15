@@ -62,7 +62,7 @@ public class Main extends Application
     }
 
     @Override
-    public void start(Stage arg0) throws Exception
+    public void start(Stage arg0)
     {
         draw();
 
@@ -170,16 +170,14 @@ public class Main extends Application
 
     /**
      *
-     * @param clusters2
-     * @return
+     * @param clusters2 list of record
+     * @return maximum items
      */
     private int getMaxItemInOneCluster(Map<Centroid, List<Record>> clusters2)
     {
-        List<Integer> nbItems = new ArrayList<Integer>();
+        List<Integer> nbItems = new ArrayList<>();
         clusters2
-                .forEach((key, value) -> {
-                    nbItems.add(value.size());
-                });
+                .forEach((key, value) -> nbItems.add(value.size()));
         int max = Integer.MIN_VALUE;
         for (Integer value : nbItems)
         {

@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Encapsulates an implementation of KMeans clustering algorithm.
  *
- * @author
+ * @author khoulessodji
  */
 public class KMeans
 {
@@ -40,15 +40,15 @@ public class KMeans
             File file = new File(dataset);
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
-            String line = "";
+            String line = br.readLine();
             String[] tempArr;
-            ArrayList<String> headers = getHeaders(line = br.readLine());
+            ArrayList<String> headers = getHeaders(line);
 
             while((line = br.readLine()) != null)
             {
                 String description = "";
                 tempArr = line.split(";");
-                Map<String, Double> features = new HashMap<String, Double>((tempArr.length - 1));
+                Map<String, Double> features = new HashMap<>((tempArr.length - 1));
                 int iterC = 0;
                 for(String value : tempArr)
                 {
@@ -120,8 +120,7 @@ public class KMeans
     public static ArrayList<String> getHeaders(String line)
     {
         String [] tempArr = line.split(";");
-        ArrayList<String> htParam = new ArrayList<String>(tempArr.length);
-        //htParam.add("Head");
+        ArrayList<String> htParam = new ArrayList<>(tempArr.length);
         // Loop over the columns
         Collections.addAll(htParam, tempArr);
         return htParam;
@@ -265,21 +264,30 @@ public class KMeans
         //Parcourt parallel
         double minimumDistance = Double.MAX_VALUE;
         Centroid nearest = null;
+        Map<Centroid, Double> distCentroids = new HashMap<>(centroids.size());
+        long lastTime = System.currentTimeMillis();
+        centroids
+                .parallelStream()
+                .forEach(centroid -> {
+                    ThreadDistanceCentroid t = new ThreadDistanceCentroid(record, centroid, distance);
+                    try
+                    {
+                        t.start();
+                        t.join();
+                        System.out.print(t);
+                        System.out.println(t.isAlive()?" is running at " : " stopped at "+System.currentTimeMillis());
+                    }
+                    catch (Exception e)
+                    {
+                        e.getStackTrace();
+                    }
+                    distCentroids
+                            .put(centroid, t.getDistValue());
 
-        Thread t = new ThreadDistanceCentroid(record, centroids, distance);
-        try
-        {
-            long lastTime = System.currentTimeMillis();
-            t.start();
-            t.join();
-            System.err.println(record + " Time spend for distance calculation : " + (System.currentTimeMillis() - lastTime));
-        }
-        catch (Exception e)
-        {
-            e.getStackTrace();
-        }
+                });
+        System.err.println(record + " Time spend for distance calculation : " + (System.currentTimeMillis() - lastTime));
 
-        Map<Centroid, Double> distCentroids = ThreadDistanceCentroid.distCentroid;
+        //Map<Centroid, Double> distCentroids = ThreadDistanceCentroid.distCentroid;
         for (Map.Entry<Centroid, Double> entry : distCentroids.entrySet())
         {
             if (entry.getValue() < minimumDistance)
@@ -312,7 +320,7 @@ public class KMeans
 
     /**
      * Generates k random centroids. Before kicking-off the centroid generation process,
-     * first we calculate the possible value range for each attribute. Then when
+     * first we calculate the possible value range for each attribute. Then, when
      * we're going to generate the centroids, we generate random coordinates in
      * the [min, max] range for each attribute.
      *
