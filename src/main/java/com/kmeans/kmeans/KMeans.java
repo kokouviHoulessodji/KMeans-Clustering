@@ -27,6 +27,8 @@ public class KMeans
      */
     private static final Random random = new Random();
 
+    static final ArrayList<String> Dimensions = new ArrayList<>();
+
     /**
      * read data(record) in the dataset file
      * @return  list of records
@@ -122,6 +124,8 @@ public class KMeans
         String [] tempArr = line.split(";");
         ArrayList<String> htParam = new ArrayList<>(tempArr.length);
         // Loop over the columns
+        for(int i=1; i<tempArr.length; i++)
+            Dimensions.add(tempArr[i]);
         Collections.addAll(htParam, tempArr);
         return htParam;
     }

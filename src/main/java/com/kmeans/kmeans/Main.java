@@ -196,12 +196,12 @@ public class Main extends Application
     public void drawCentroidsAndRecordsForScatterChart(Map<Centroid, List<Record>> clusters, Map<String, Double> mins, Map<String, Double> maxs)
     {
         //X axis
-        NumberAxis xAxis = new NumberAxis(mins.get("latitude") - 1, maxs.get("latitude") + 1, 0.5);
-        xAxis.setLabel("latitude");
+        NumberAxis xAxis = new NumberAxis(mins.get(KMeans.Dimensions.get(0)) - 1, maxs.get(KMeans.Dimensions.get(0)) + 1, 0.5);
+        xAxis.setLabel(KMeans.Dimensions.get(0));
 
         //Y Axis
-        NumberAxis yAxis = new NumberAxis(mins.get("longitude") - 1, maxs.get("longitude") + 1, 0.5);
-        yAxis.setLabel("longitude");
+        NumberAxis yAxis = new NumberAxis(mins.get(KMeans.Dimensions.get(1)) - 1, maxs.get(KMeans.Dimensions.get(1)) + 1, 0.5);
+        yAxis.setLabel(KMeans.Dimensions.get(1));
 
         ScatterChart = new ScatterChart<>(xAxis, yAxis);
         ScatterChart.setTitle("Final Cluster");
@@ -210,14 +210,14 @@ public class Main extends Application
         for (Map.Entry<Centroid, List<Record>> entry : clusters.entrySet())
         {
             XYChart.Series series = new XYChart.Series<>();
-            series.getData().add(new XYChart.Data(entry.getKey().getCoordinates("latitude"), entry.getKey().getCoordinates("longitude")));
-            series.setName("Centroid " + (it + 1) + "\nx : " + entry.getKey().getCoordinates("latitude") + "\ny : " + entry.getKey().getCoordinates("longitude"));
+            series.getData().add(new XYChart.Data(entry.getKey().getCoordinates(KMeans.Dimensions.get(0)), entry.getKey().getCoordinates(KMeans.Dimensions.get(1))));
+            series.setName("Centroid " + (it + 1) + "\nx : " + entry.getKey().getCoordinates(KMeans.Dimensions.get(0)) + "\ny : " + entry.getKey().getCoordinates(KMeans.Dimensions.get(1)));
 
             if(entry.getValue() != null)
             {
                 for (int j = 0; j < entry.getValue().size(); j++)
                 {
-                    series.getData().add(new XYChart.Data(entry.getValue().get(j).getCoordinates("latitude"), (entry.getValue().get(j).getCoordinates("longitude"))));
+                    series.getData().add(new XYChart.Data(entry.getValue().get(j).getCoordinates(KMeans.Dimensions.get(0)), (entry.getValue().get(j).getCoordinates(KMeans.Dimensions.get(1)))));
                 }
             }
             ScatterChart.getData().add(series);
